@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+message Cost {
+    float value = 1;
+}
+
+service CalculatorSale {
+    rpc GetSale(Cost) returns (Cost) {}
+}
