@@ -24,29 +24,18 @@ class CalculatorSales(sales_pb2_grpc.CalculatorSaleServicer):
         return value * 0.5
 
 
-class SalesServer:
-    _max_workers = 5
-    _default_port = 8001
-
-    def run_server(self):
-        server = self._get_grpc_server()
-        server.start()
-
-    def _get_grpc_server(self):
-        server = grpc.server(futures.ThreadPoolExecutor(max_workers=self._max_workers))
-        port = self.get_port()
-
-        sales_pb2_grpc.add_CalculatorSaleServicer_to_server(CalculatorSales(), server)
-        server.add_insecure_port(f'[::]:{port}')
-
-        return server
-
-    def get_port(self):
-        return int(os.getenv('LISTEN_PORT', self._default_port))
-
-
 if __name__ == "__main__":
-    SalesServer().run_server()
-    while True:
-        time.sleep(80000)
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=5))
+    port = 8001
+
+    sales_pb2_grpc.add_CalculatorSaleServicer_to_server(CalculatorSales(), server)
+    server.add_insecure_port(f'[::]:{port}')
+    server.start()
+
+    try:
+        while True:
+            time.sleep(800)
+    except KeyboardInterrupt:
+        server.stop(0)
+
     # app.run()
